@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from super_types.models import SuperType
+from super_types.serializers import SuperTypeSerializer
 from supers.serializers import SuperSerializer
 from .models import Super
 
@@ -39,3 +40,18 @@ def super_detail(request, pk):
     elif request.method == 'DELETE':
         super.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def heroes_and_villains(request):
+    heros = Super.objects.all().filter(super_type__type ='Hero')
+    villains = Super.objects.all().filter(super_type__type ='Villain')
+
+    hero_serializer = SuperSerializer(heros, many=True)
+    villain_serializer = SuperSerializer(villains, many=True)
+
+    super_resp_dict = {
+        'Heros': hero_serializer.data,
+        'Villains': villain_serializer.data
+    }
+
+    return Response(super_resp_dict)
